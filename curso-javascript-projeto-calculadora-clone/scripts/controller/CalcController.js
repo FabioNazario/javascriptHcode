@@ -1,7 +1,8 @@
 class CalcController{
 
     constructor(){
-
+        
+        this._operation = [];
         this._locale = "pt-BR";
         this._displayCalcEl = document.querySelector("#display");
         this._displayDateEl = document.querySelector("#data");
@@ -12,12 +13,74 @@ class CalcController{
         this.initButtonsEvents();
     }
 
+    addOperation(value){
+        this._operation.push(value);
+    }
+
+    setError(){
+        this.displayCalc = 'ERROR';
+    }
 
     initialize(){
         this.setDisplayDateTime();
         setInterval(()=>{
             this.setDisplayDateTime();
         },1000);
+    }
+
+
+    clearAll(){
+        this._operation = [];
+    }
+
+    clearEntry(){
+        this._operation.pop();
+    }
+
+    inputOperation(value){
+        switch(value){
+            case 'soma':
+                break;
+            case 'subtracao':
+                break;
+            case 'multiplicacao':
+                break;
+            case 'divisao':
+                break;
+            case 'porcento':
+                break;
+            case 'ca':
+                this.clearAll()
+                break;
+            case 'ce':
+                this.clearEntry();
+                break;
+            case 'igual':
+                break;
+            case 'ponto':
+                break;
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                
+                /*if (this.displayCalc.length == 1 &&  this.displayCalc == '0'){
+                    this.displayCalc='';
+                }
+
+                this.displayCalc += value;*/
+                this.addOperation(value);
+                console.log(this._operation);
+                break;                
+            default:'ERROR'
+                this.setError();
+        }
     }
 
     addEventListenerAll(element, events, fn){
@@ -32,7 +95,8 @@ class CalcController{
         
         buttons.forEach((btn, index)=>{
             this.addEventListenerAll(btn, 'click drag', e=>{
-                console.log(btn.className.baseVal.replace("btn-",""));
+                //console.log(btn.className.baseVal.replace("btn-",""));
+                this.inputOperation(btn.className.baseVal.replace("btn-",""));
             })
 
             this.addEventListenerAll(btn, 'mouseup mouseover mousedown', e=>{
