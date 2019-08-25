@@ -2,6 +2,8 @@ class CalcController{
 
     constructor(){
         
+        this._audio = new Audio('click.mp3');
+        this._isAudioOn = false;
         this._operation = [''];
         this._locale = "pt-BR";
         this._displayCalcEl = document.querySelector("#display");
@@ -13,6 +15,70 @@ class CalcController{
         this.initialize();
         this.initButtonsEvents();
         this.initKeyboardEvents();
+        this.pasteFromClipboard();
+        this.addSoundEvent();
+    }
+
+    evalCalculate(){
+        try{
+            this._operation = [eval(this._operation.join("")).toString()];
+        }catch{
+            setInterval(e=>{
+                this.setError();
+            },200);
+        }
+    }
+
+    toogleAudio(){
+        this._isAudioOn = !this._isAudioOn;
+        console.log('audio toogle');
+    }
+
+    playAudio(){
+        if (this._isAudioOn){
+            this._audio.currentTime = 0;
+            this._audio.play();
+            
+        }
+    }
+
+    addSoundEvent(){
+        document.querySelectorAll('.btn-ac').forEach(e=>{
+            console.log(e);
+            
+            e.addEventListener('dblclick', e =>{
+                this.toogleAudio();
+            })
+        })
+
+        
+    }
+
+    copyToClipboard(){
+        let input = document.createElement('input');
+        input.value = this.displayCalc;
+        document.body.appendChild(input);
+        input.select();
+
+        document.execCommand('Copy');
+        input.remove();
+    }
+
+    pasteFromClipboard(){
+        document.addEventListener('paste', e=>{
+            let text = e.clipboardData.getData('Text');
+            let currentOperation = this._operation[this._operation.length -1];
+
+            if (this.isNumber(text)){
+                this.displayCalc = text;
+
+                if( this.isNumber(this._operation[this._operation.length-1]) ){
+                    this._operation[this._operation.length -1] = text;
+                }else{
+                    this._operation.push(text);
+                }
+            }
+        })
     }
 
     getLastOperation(){
@@ -24,11 +90,7 @@ class CalcController{
     }
 
     pushOperation(value){
-        
-        //if (!this.isMathOperator(value)){
-        //    value = parseFloat(value);
-        //}
-       
+             
         this._lastOperationDone = [];
         
         if (value == '%'){
@@ -79,10 +141,10 @@ class CalcController{
         
 
         if ( this.isNumber( this.getLastOperation() ) ){
-            this._operation = [eval(this._operation.join("")).toString()];
+            this.evalCalculate();
         }else{
             let last = this._operation.pop();
-            this._operation = [eval(this._operation.join("")).toString()];
+            this.evalCalculate();
             this._operation.push(last);
         }
         this.displayCalc = this._operation[0];
@@ -136,6 +198,7 @@ class CalcController{
 
     clearAll(){
         this._operation = [''];
+        this._lastOperationDone = [''];
         this.displayCalc = '0';
     }
 
@@ -148,6 +211,9 @@ class CalcController{
     }
 
     inputOperation(value){
+
+        this.playAudio();
+
         switch(value){
             case 'soma':
                 this.addOperation('+');
@@ -206,6 +272,9 @@ class CalcController{
 
     initKeyboardEvents(){
         document.addEventListener('keyup', e=>{
+
+            this.playAudio();
+
             switch(e.key){
                 case '+':
                 case '-':
@@ -226,22 +295,26 @@ class CalcController{
                 case '9':
                     this.addOperation(e.key);
                     this.displayCalc = this.getLastOperation() == '' ? '0' : this.getLastOperation();
-                break;
+                    break;
                 case '.':
                     this.addPoint();
                     break;
                 case '=':
                 case 'Enter':
                     this.equalsCalculate();
-                break;   
+                    break;   
                 case 'Escape':
                     this.clearAll();
-                break;
+                    break;
                 case 'Backspace':
                     this.clearEntry();
-                break;
-
-                break;  
+                    break; 
+                case 'c':
+                    if(e.ctrlKey) this.copyToClipboard();
+                    break;
+                case 'v':
+                    if(e.ctrlKey) this.pasteFromClipboard();
+                    break;
             }
             
             console.log(this._operation);
@@ -294,6 +367,10 @@ class CalcController{
     }
 
     set displayCalc(value){
+        if(value.toString().length >= 10){
+            this.setError();
+            return 0;
+        }
         this._displayCalcEl.innerHTML = value;
     }
 
