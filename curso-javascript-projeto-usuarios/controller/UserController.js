@@ -50,7 +50,7 @@ class UserController{
 
     getPhoto(){
 
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => { 
 
             let fileReader = new FileReader();
 
