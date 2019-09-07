@@ -18,7 +18,7 @@ class UserController{
         <td><img src="${user.photo}" alt="User Image" class="img-circle img-sm"></td>
         <td>${user.name}</td>
         <td>${user.email}</td>
-        <td>${user.admin}</td>
+        <td>${user.admin ? 'Sim':'Não'}</td>
         <td>${user.birth}</td>
         <td>
             <button type="button" class="btn btn-primary btn-xs btn-flat">Editar</button>
@@ -73,8 +73,11 @@ class UserController{
             fileReader.onerror = (e) => {
                 reject(e);
             };
-
-            fileReader.readAsDataURL(file);
+            if(file){
+                fileReader.readAsDataURL(file);
+            }else{
+                resolve('dist/img/boxed-bg.jpg');
+            }
         });
     }
 
@@ -87,6 +90,8 @@ class UserController{
                 if (field.name == 'gender'){
                     if (field.checked) user[field.name] = field.value;
             
+                }else if(field.name == 'admin'){
+                    user[field.name] = field.checked;
                 }else{
                     user[field.name] = field.value;
                 }

@@ -1,4 +1,5 @@
 class User {
+
     constructor(name, gender, birth, country, email, password, photo, admin){
         console.log("construindo user...");
         this.name       = name;
@@ -10,4 +11,5 @@ class User {
         this.photo      = photo;
         this.admin      = admin;
     }
+    
 }
